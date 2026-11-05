@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم بايثون - الصف العاشر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 100%);
+            min-height: 100vh;
+        }
+        
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Custom Scrollbar for IDE */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2b2b2b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        /* PyCharm Syntax Highlighting Simulation for Lesson display */
+        .kw { color: #cc7832; font-weight: bold; } /* Keywords */
+        .str { color: #6a8759; } /* Strings */
+        .func { color: #8888c6; } /* Functions */
+        .var { color: #a9b7c6; } /* Variables */
+        .num { color: #6897bb; } /* Numbers */
+        .com { color: #808080; font-style: italic; } /* Comments */
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 2s infinite;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+        
+        /* Glassmorphism containers */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800 p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Header / Student Info -->
+    <header class="w-full max-w-6xl mb-8 animate-fade-in text-center">
+        <div class="inline-block glass-panel rounded-3xl p-6 md:p-8 w-full max-w-2xl mx-auto border-t-4 border-pink-400 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-pink-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"></div>
+            
+            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600 mb-6 relative z-10">
+                👩‍💻 رحلتي مع البرمجة - لغة بايثون 🐍
+            </h1>
+            
+            <div class="flex flex-col md:flex-row gap-4 justify-center relative z-10">
+                <div class="flex-1">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">اسم المتعلمة المبدعة:</label>
+                    <input type="text" id="studentName" placeholder="اكتبي اسمك هنا..." class="w-full px-4 py-3 rounded-xl border-2 border-pink-100 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 transition-all outline-none text-center font-bold text-pink-700">
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">الصف:</label>
+                    <input type="text" id="studentClass" placeholder="عاشر / ..." class="w-full px-4 py-3 rounded-xl border-2 border-purple-100 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all outline-none text-center font-bold text-purple-700">
+                </div>
+            </div>
+            <button onclick="startLesson()" class="mt-6 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-2 px-8 rounded-full shadow-lg transform transition-transform hover:scale-105 active:scale-95 animate-bounce-subtle">
+                هيا نبدأ! 🚀
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Lesson Container (Hidden initially) -->
+    <main id="lessonContainer" class="w-full max-w-6xl hidden flex-col lg:flex-row gap-8">
+        
+        <!-- Right Column: Presentation & Instructions -->
+        <section class="lg:w-1/2 flex flex-col gap-6">
+            
+            <div class="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden flex-1 flex flex-col">
+                <!-- Step Indicator -->
+                <div class="flex justify-center gap-2 mb-6" id="stepIndicators">
+                    <!-- Dots generated by JS -->
+                </div>
+
+                <h2 id="lessonTitle" class="text-2xl font-bold text-purple-700 mb-4 border-b-2 border-purple-100 pb-2">
+                    عنوان الدرس
+                </h2>
+
+                <!-- Animated Code Explanation -->
+                <div class="bg-[#2b2b2b] rounded-xl p-4 mb-4 shadow-inner relative" dir="ltr">
+                    <div class="absolute top-2 right-2 flex gap-1">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <pre id="lessonCodeDisplay" class="code-font text-sm md:text-base text-[#a9b7c6] mt-4 whitespace-pre-wrap leading-relaxed"></pre>
+                </div>
+
+                <div id="lessonExplanation" class="text-gray-700 text-lg leading-relaxed bg-pink-50 p-4 rounded-xl border-r-4 border-pink-400 flex-1">
+                    الشرح يظهر هنا...
+                </div>
+
+                <!-- Navigation -->
+                <div class="flex justify-between mt-6 pt-4 border-t border-gray-200">
+                    <button id="prevBtn" onclick="prevStep()" class="px-6 py-2 rounded-full font-bold text-purple-600 bg-purple-100 hover:bg-purple-200 transition-colors hidden">
+                        السابق
+                    </button>
+                    <button id="nextBtn" onclick="nextStep()" class="px-6 py-2 rounded-full font-bold text-white bg-purple-500 hover:bg-purple-600 transition-colors ml-auto shadow-md">
+                        التالي
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Left Column: Practice Area (IDE) -->
+        <section class="lg:w-1/2 flex flex-col gap-6">
+            
+            <div class="glass-panel rounded-3xl p-6 shadow-xl flex-1 flex flex-col">
+                
+                <div class="bg-purple-50 rounded-xl p-4 mb-4 border border-purple-100 shadow-sm flex items-start gap-3">
+                    <span class="text-2xl">📝</span>
+                    <div>
+                        <h3 class="font-bold text-purple-800 text-lg mb-1">حان دورك يا بطلة!</h3>
+                        <p id="taskDescription" class="text-gray-600 text-sm md:text-base font-semibold">
+                            اكتبي الكود هنا...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- PyCharm Mock IDE -->
+                <div class="bg-[#2b2b2b] rounded-xl overflow-hidden shadow-2xl flex flex-col flex-1 border border-gray-700 min-h-[300px]" dir="ltr">
+                    
+                    <!-- IDE Header -->
+                    <div class="bg-[#3c3f41] px-4 py-2 flex items-center justify-between border-b border-gray-900">
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400 text-xs font-bold font-sans tracking-wider">PYCHARM</span>
+                            <span class="text-gray-300 text-xs code-font bg-[#4b4d4f] px-2 py-1 rounded">main.py</span>
+                        </div>
+                        <button onclick="runCode()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 transition-colors shadow-sm">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            تشغيل
+                        </button>
+                    </div>
+
+                    <!-- Editor Area -->
+                    <div class="flex flex-1 relative bg-[#2b2b2b]">
+                        <!-- Line Numbers -->
+                        <div id="lineNumbers" class="bg-[#313335] text-gray-500 text-right pr-2 pl-3 py-3 code-font text-sm leading-6 border-r border-gray-700 select-none w-10 flex flex-col items-end">
+                            <div>1</div>
+                        </div>
+                        <!-- Textarea -->
+                        <textarea id="codeEditor" class="w-full bg-transparent text-[#a9b7c6] code-font text-sm p-3 leading-6 focus:outline-none resize-none" spellcheck="false" placeholder=""></textarea>
+                    </div>
+
+                    <!-- Console Output -->
+                    <div class="bg-[#232425] border-t border-gray-700 h-1/3 min-h-[120px] flex flex-col">
+                        <div class="bg-[#2b2b2b] text-gray-400 text-xs px-3 py-1 border-b border-gray-700 font-sans flex justify-between items-center">
+                            <span>Run: main</span>
+                            <button onclick="clearConsole()" class="hover:text-gray-200">🧹</button>
+                        </div>
+                        <div id="consoleOutput" class="p-3 code-font text-sm text-gray-300 overflow-y-auto whitespace-pre-wrap flex-1"></div>
+                    </div>
+                </div>
+
+                <!-- Feedback Box -->
+                <div id="feedbackBox" class="mt-4 p-4 rounded-xl hidden transition-all duration-300 font-bold text-center transform">
+                    <!-- Feedback text goes here -->
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // Lesson Data based on the PDF content
+        const lessons = [
+            {
+                title: "1. المتغيرات والطباعة",
+                codeHTML: `<span class="var">name</span> = <span class="str">'hind'</span>\n<span class="func">print</span>(<span class="var">name</span>)`,
+                explanation: `
+                    <strong>الخطوة الأولى:</strong> تعيين اسم متغير وتخصيص قيمة له.<br>
+                    الاسم المتغير هنا هو <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold">name</span> وقيمته التي خصصناها له هي النص <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold">'hind'</span>.<br><br>
+                    <strong>الخطوة الثانية:</strong> أمر <span class="bg-purple-100 px-1 rounded text-purple-600 font-bold text-left" dir="ltr">print()</span> يقوم بطباعة قيمة المتغير على الشاشة.
+                `,
+                task: "اكتبي الكود لتعريف متغير باسم name وقيمته 'hind'، ثم اطبعي هذا المتغير باستخدام print.",
+                check: (code) => {
+                    const cleanCode = code.replace(/\s+/g, '');
+                    return code.includes("name") && (code.includes("'hind'") || code.includes('"hind"')) && cleanCode.includes("print(name)");
+                },
+                successMsg: "أحسنتِ يا مبدعة! بداية موفقة جداً 🌟",
+                simulatedOutput: "hind\n\nProcess finished with exit code 0"
+            },
+            {
+                title: "2. استقبال المدخلات (Input)",
+                codeHTML: `<span class="var">age</span> = <span class="func">input</span>(<span class="str">'Enter your age:'</span>)\n<span class="func">print</span>(<span class="var">age</span>)`,
+                explanation: `
+                    <strong>الخطوة الثالثة:</strong> نريد من المستخدم أن يُدخل قيمته بنفسه!<br>
+                    نستخدم الأمر <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold text-left" dir="ltr">input()</span> لطلب إدخال قيمة، ونضع عبارة توضيحية بداخلها مثل 'Enter your age'.<br><br>
+                    <strong>الخطوة الرابعة:</strong> عند الطباعة ستظهر القيمة التي أدخلها المستخدم (مثلاً 16).
+                `,
+                task: "اكتبي الكود لطلب عمر المستخدم باستخدام input واحفظيه في متغير age ثم اطبعي المتغير.",
+                check: (code) => {
+                    const cleanCode = code.replace(/\s+/g, '');
+                    return code.includes("age") && code.includes("input") && cleanCode.includes("print(age)");
+                },
+                successMsg: "رائع! الآن أصبح برنامجك يتفاعل مع المستخدمين! 👏",
+                simulatedOutput: "Enter your age: 16\n16\n\nProcess finished with exit code 0"
+            },
+            {
+                title: "3. معرفة نوع البيانات",
+                codeHTML: `<span class="func">print</span>(<span class="func">type</span>(<span class="var">age</span>))`,
+                explanation: `
+                    <strong>الخطوة الخامسة:</strong> لمعرفة نوع بيانات المتغير نستخدم الدالة <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold text-left" dir="ltr">type()</span>.<br><br>
+                    دائماً الأمر <span class="bg-gray-200 px-1 rounded text-left" dir="ltr">input</span> يُدخل البيانات كنص <span class="bg-purple-100 px-1 rounded text-purple-600 font-bold text-left" dir="ltr">&lt;class 'str'&gt;</span> (اختصار لكلمة string).
+                `,
+                task: "استخدمي الدالة type لمعرفة نوع المتغير age وقومي بطباعته باستخدام print.",
+                check: (code) => {
+                    const cleanCode = code.replace(/\s+/g, '');
+                    return cleanCode.includes("print(type(age))");
+                },
+                successMsg: "ممتاز! معرفة نوع البيانات خطوة مهمة جداً في البرمجة. 🔍",
+                simulatedOutput: "<class 'str'>\n\nProcess finished with exit code 0"
+            },
+            {
+                title: "4. تحويل نوع البيانات (Casting)",
+                codeHTML: `<span class="var">age</span> = <span class="func">int</span>(<span class="var">age</span>)\n<span class="func">print</span>(<span class="func">type</span>(<span class="var">age</span>))`,
+                explanation: `
+                    <strong>الخطوة السادسة:</strong> لتحويل النص إلى عدد صحيح نستخدم دالة <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold text-left" dir="ltr">int()</span> اختصار لكلمة integer.<br><br>
+                    <strong>الخطوة السابعة:</strong> عند طباعة النوع الآن سيظهر أنه أصبح عدد صحيح <span class="bg-purple-100 px-1 rounded text-purple-600 font-bold text-left" dir="ltr">&lt;class 'int'&gt;</span>.
+                `,
+                task: "اكتبي أمر تحويل المتغير age إلى int، ثم اطلبي طباعة نوعه الجديد.",
+                check: (code) => {
+                    const cleanCode = code.replace(/\s+/g, '');
+                    return cleanCode.includes("int(age)") && cleanCode.includes("print(type(age))");
+                },
+                successMsg: "تفكير سليم! التحويل للأرقام يسمح لنا بالقيام بعمليات حسابية. 🔢",
+                simulatedOutput: "<class 'int'>\n\nProcess finished with exit code 0"
+            },
+            {
+                title: "5. العمليات الحسابية والأعداد العشرية",
+                codeHTML: `<span class="var">meal_price</span> = <span class="func">input</span>(<span class="str">'Enter meal price:'</span>)\n<span class="var">meal_price</span> = <span class="func">float</span>(<span class="var">meal_price</span>)\n<span class="var">meal_number</span> = <span class="num">3</span>\n<span class="var">total_price</span> = <span class="var">meal_price</span> * <span class="var">meal_number</span>\n<span class="func">print</span>(<span class="var">total_price</span>)`,
+                explanation: `
+                    <strong>ملاحظة هامة:</strong> العمليات الحسابية لا تقبل النص! لذلك نحول السعر إلى عدد عشري بدالة <span class="bg-pink-100 px-1 rounded text-pink-600 font-bold text-left" dir="ltr">float()</span>.<br><br>
+                    ثم قمنا بإنشاء متغير لحساب الإجمالي (السعر * العدد) وطبعنا النتيجة.
+                `,
+                task: "اكتبي كود يعرّف meal_price محوّلاً إلى float مضروباً في meal_number (3)، ثم اطبعي النتيجة.",
+                check: (code) => {
+                    return code.includes("float") && code.includes("*") && code.includes("print") && code.includes("3");
+                },
+                successMsg: "أنتِ مبرمجة محترفة! لقد أتممتِ جميع المهام بنجاح باهر! 🎉🏅",
+                simulatedOutput: "Enter meal price: 2.5\n7.5\n\nProcess finished with exit code 0"
+            }
+        ];
+
+        let currentStep = 0;
+        let studentNameStr = "";
+
+        // Elements
+        const editor = document.getElementById('codeEditor');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const consoleOut = document.getElementById('consoleOutput');
+        const feedbackBox = document.getElementById('feedbackBox');
+        
+        function startLesson() {
+            const nameInput = document.getElementById('studentName').value.trim();
+            studentNameStr = nameInput || "يا بطلة";
+            
+            // Hide Header, Show Main
+            document.querySelector('header').style.display = 'none';
+            const mainContainer = document.getElementById('lessonContainer');
+            mainContainer.classList.remove('hidden');
+            mainContainer.classList.add('flex', 'animate-fade-in');
+
+            buildIndicators();
+            loadStep(0);
+        }
+
+        function buildIndicators() {
+            const container = document.getElementById('stepIndicators');
+            container.innerHTML = '';
+            lessons.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 rounded-full transition-colors duration-300 ${index === 0 ? 'bg-pink-500' : 'bg-pink-200'}`;
+                dot.id = `dot-${index}`;
+                container.appendChild(dot);
+            });
+        }
+
+        function updateIndicators() {
+            lessons.forEach((_, index) => {
+                const dot = document.getElementById(`dot-${index}`);
+                if (index === currentStep) {
+                    dot.className = 'w-4 h-4 rounded-full bg-pink-500 shadow-md transition-all duration-300';
+                } else if (index < currentStep) {
+                    dot.className = 'w-3 h-3 rounded-full bg-purple-400 transition-all duration-300';
+                } else {
+                    dot.className = 'w-3 h-3 rounded-full bg-pink-200 transition-all duration-300';
+                }
+            });
+        }
+
+        function loadStep(index) {
+            currentStep = index;
+            const data = lessons[index];
+            
+            // UI Updates with reset animations
+            const titleEl = document.getElementById('lessonTitle');
+            const codeEl = document.getElementById('lessonCodeDisplay');
+            const explEl = document.getElementById('lessonExplanation');
+            const taskEl = document.getElementById('taskDescription');
+
+            // Reset classes to re-trigger animations
+            [titleEl, codeEl, explEl].forEach(el => {
+                el.classList.remove('animate-fade-in');
+                void el.offsetWidth; // trigger reflow
+                el.classList.add('animate-fade-in');
+            });
+
+            titleEl.textContent = data.title;
+            codeEl.innerHTML = data.codeHTML;
+            explEl.innerHTML = data.explanation;
+            
+            let personalizedTask = data.task.replace("اكتبي", `${studentNameStr}، اكتبي`);
+            taskEl.innerHTML = personalizedTask;
+
+            // Reset Editor and output
+            editor.value = '';
+            updateLineNumbers();
+            clearConsole();
+            hideFeedback();
+
+            // Buttons
+            document.getElementById('prevBtn').style.display = currentStep > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = currentStep < lessons.length - 1 ? 'block' : 'none';
+            
+            updateIndicators();
+        }
+
+        function nextStep() {
+            if (currentStep < lessons.length - 1) {
+                loadStep(currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                loadStep(currentStep - 1);
+            }
+        }
+
+        // Editor Line Numbers Logic
+        editor.addEventListener('input', updateLineNumbers);
+        editor.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = editor.scrollTop;
+        });
+
+        function updateLineNumbers() {
+            const lines = editor.value.split('\n').length;
+            let numbersHTML = '';
+            for (let i = 1; i <= Math.max(lines, 1); i++) {
+                numbersHTML += `<div>${i}</div>`;
+            }
+            lineNumbers.innerHTML = numbersHTML;
+        }
+
+        function clearConsole() {
+            consoleOut.innerHTML = '';
+        }
+
+        function showFeedback(isSuccess, message) {
+            feedbackBox.classList.remove('hidden', 'scale-95', 'opacity-0');
+            feedbackBox.classList.add('block', 'scale-100', 'opacity-100');
+            
+            if (isSuccess) {
+                feedbackBox.className = 'mt-4 p-4 rounded-xl font-bold text-center transform transition-all duration-300 bg-green-100 text-green-700 border-2 border-green-300 shadow-lg';
+                createConfetti();
+            } else {
+                feedbackBox.className = 'mt-4 p-4 rounded-xl font-bold text-center transform transition-all duration-300 bg-red-50 text-red-600 border-2 border-red-200 shadow-md animate-pulse';
+            }
+            feedbackBox.innerHTML = message;
+        }
+
+        function hideFeedback() {
+            feedbackBox.classList.add('hidden');
+        }
+
+        function runCode() {
+            const code = editor.value;
+            const data = lessons[currentStep];
+            
+            if (code.trim() === "") {
+                showFeedback(false, "عزيزتي، مساحة الكود فارغة. حاولي كتابة التعليمات المطلوبة.");
+                consoleOut.innerHTML = "<span class='text-red-400'>Error: No code to execute.</span>";
+                return;
+            }
+
+            // Simulate execution
+            consoleOut.innerHTML = "<span class='text-gray-500 italic'>Executing...</span>";
+            hideFeedback();
+
+            setTimeout(() => {
+                const isCorrect = data.check(code);
+                if (isCorrect) {
+                    // Success
+                    consoleOut.innerHTML = data.simulatedOutput;
+                    showFeedback(true, data.successMsg);
+                } else {
+                    // Try Again
+                    consoleOut.innerHTML = "<span class='text-red-400'>SyntaxError أو نقص في الكود المطلوب.</span>\n\nProcess finished with exit code 1";
+                    showFeedback(false, `تأكدي من الكود يا ${studentNameStr}. راجعي الشرح والألوان فوق وحاولي مجدداً! 💪`);
+                }
+            }, 600); // Fake delay for realism
+        }
+
+        // Simple Confetti Effect
+        function createConfetti() {
+            const container = document.body;
+            const colors = ['#f472b6', '#c084fc', '#60a5fa', '#34d399', '#fbbf24']; // Tailwind colors
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti rounded-sm';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 0.5;
+                
+                confetti.style.animation = `fall ${duration}s ease-in ${delay}s forwards`;
+                container.appendChild(confetti);
+                
+                // Cleanup
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + delay) * 1000);
+            }
+        }
+        
+        // Add CSS keyframes for confetti
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fall {
+                0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initial setup
+        updateLineNumbers();
+    </script>
+</body>
+</html>
